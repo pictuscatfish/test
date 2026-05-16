@@ -1,0 +1,1265 @@
+import { useState, useMemo } from "react";
+import { LayoutDashboard, Package, Users, UserCheck, FileText, Calendar, BarChart2, TrendingUp, MapPin, Target, Plus, Pencil, Trash2, X, Search, ChevronDown, Menu, Sun, Moon, CheckCircle, XCircle, AlertCircle, DollarSign, ShoppingCart, TrendingDown, Award } from "lucide-react";
+import { BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+
+// ─────────────────────────────────────────
+// INITIAL DATA
+// ─────────────────────────────────────────
+const INIT_PRODUK = [
+  { id:"P001", nama:"Laptop ProMax 15", kategori:"Elektronik", merek:"Asus", harga:12500000, hpp:8500000, margin:0.32 },
+  { id:"P002", nama:"Laptop SlimBook 13", kategori:"Elektronik", merek:"Lenovo", harga:9800000, hpp:6800000, margin:0.306 },
+  { id:"P003", nama:"Mouse Wireless Ergo", kategori:"Aksesori", merek:"Logitech", harga:350000, hpp:180000, margin:0.486 },
+  { id:"P004", nama:"Keyboard Mekanikal RGB", kategori:"Aksesori", merek:"Razer", harga:850000, hpp:450000, margin:0.471 },
+  { id:"P005", nama:"Monitor 27inch 4K", kategori:"Elektronik", merek:"LG", harga:4200000, hpp:2900000, margin:0.310 },
+  { id:"P006", nama:"Headset Gaming Pro", kategori:"Aksesori", merek:"HyperX", harga:1200000, hpp:700000, margin:0.417 },
+  { id:"P007", nama:"Printer Laser A4", kategori:"Periferal", merek:"Canon", harga:3500000, hpp:2200000, margin:0.371 },
+  { id:"P008", nama:"SSD External 1TB", kategori:"Storage", merek:"Samsung", harga:950000, hpp:580000, margin:0.389 },
+  { id:"P009", nama:"Webcam Full HD 1080", kategori:"Periferal", merek:"Logitech", harga:750000, hpp:420000, margin:0.44 },
+  { id:"P010", nama:"Router WiFi 6 AX3000", kategori:"Jaringan", merek:"TP-Link", harga:1100000, hpp:650000, margin:0.409 },
+  { id:"P011", nama:"Tablet Android 10", kategori:"Elektronik", merek:"Samsung", harga:6500000, hpp:4200000, margin:0.354 },
+  { id:"P012", nama:"Powerbank 20000mAh", kategori:"Aksesori", merek:"Anker", harga:450000, hpp:240000, margin:0.467 },
+  { id:"P013", nama:"Speaker Bluetooth JBL", kategori:"Aksesori", merek:"JBL", harga:800000, hpp:480000, margin:0.4 },
+  { id:"P014", nama:"Hub USB-C 7in1", kategori:"Aksesori", merek:"Ugreen", harga:380000, hpp:200000, margin:0.474 },
+  { id:"P015", nama:"NAS Server 4Bay", kategori:"Storage", merek:"Synology", harga:8900000, hpp:6100000, margin:0.315 },
+];
+
+const INIT_PELANGGAN = [
+  { id:"CUS001", nama:"PT Maju Bersama", tipe:"Korporat", kota:"Jakarta", pic:"Heriyanto", telp:"021-5551234" },
+  { id:"CUS002", nama:"CV Sumber Makmur", tipe:"UMKM", kota:"Surabaya", pic:"Dewi Lestari", telp:"031-7778888" },
+  { id:"CUS003", nama:"Toko ElektroNusa", tipe:"Retail", kota:"Bandung", pic:"Budi Santoso", telp:"022-4441111" },
+  { id:"CUS004", nama:"PT Digital Solusi", tipe:"Korporat", kota:"Jakarta", pic:"Rini Wulandari", telp:"021-3339999" },
+  { id:"CUS005", nama:"UD Karya Mandiri", tipe:"UMKM", kota:"Medan", pic:"Agus Prasetyo", telp:"061-2224444" },
+  { id:"CUS006", nama:"PT Teknindo Jaya", tipe:"Korporat", kota:"Semarang", pic:"Siti Rahayu", telp:"024-6663333" },
+  { id:"CUS007", nama:"Toko Komputer Prima", tipe:"Retail", kota:"Yogyakarta", pic:"Doni Susanto", telp:"0274-5552222" },
+  { id:"CUS008", nama:"CV Berkah Niaga", tipe:"UMKM", kota:"Makassar", pic:"Fitri Handayani", telp:"0411-8887777" },
+  { id:"CUS009", nama:"PT Infranet Global", tipe:"Korporat", kota:"Jakarta", pic:"Hendro Wibowo", telp:"021-1113333" },
+  { id:"CUS010", nama:"Apotek E-Health", tipe:"Retail", kota:"Bandung", pic:"Nurul Hidayah", telp:"022-9998888" },
+  { id:"CUS011", nama:"PT Garuda Niaga", tipe:"Korporat", kota:"Surabaya", pic:"Teguh Santoso", telp:"031-4445555" },
+  { id:"CUS012", nama:"CV Mitra Usaha", tipe:"UMKM", kota:"Palembang", pic:"Yanti Kusuma", telp:"0711-3336666" },
+  { id:"CUS013", nama:"Warnet GameZone", tipe:"Retail", kota:"Jakarta", pic:"Rizky Fauzan", telp:"021-7774444" },
+  { id:"CUS014", nama:"PT Solusi Cerdas", tipe:"Korporat", kota:"Bali", pic:"Eka Putri", telp:"0361-2228888" },
+  { id:"CUS015", nama:"Bengkel TeknoFix", tipe:"Retail", kota:"Surabaya", pic:"Hendra Saputra", telp:"031-6661111" },
+];
+
+const INIT_SALESMAN = [
+  { id:"SAL001", nama:"Arif Budiman", wilayah:"Jakarta", level:"Senior", targetBulan:15000000, targetTahunan:180000000, status:"Aktif" },
+  { id:"SAL002", nama:"Rina Kusumawati", wilayah:"Surabaya", level:"Senior", targetBulan:14500000, targetTahunan:174000000, status:"Aktif" },
+  { id:"SAL003", nama:"Dimas Pratama", wilayah:"Bandung", level:"Junior", targetBulan:10000000, targetTahunan:120000000, status:"Aktif" },
+  { id:"SAL004", nama:"Sari Indrawati", wilayah:"Semarang", level:"Junior", targetBulan:9500000, targetTahunan:114000000, status:"Aktif" },
+  { id:"SAL005", nama:"Bambang Haryono", wilayah:"Medan", level:"Senior", targetBulan:13000000, targetTahunan:156000000, status:"Aktif" },
+  { id:"SAL006", nama:"Laila Fitriani", wilayah:"Jakarta", level:"Senior", targetBulan:16000000, targetTahunan:192000000, status:"Aktif" },
+  { id:"SAL007", nama:"Wahyu Setiawan", wilayah:"Makassar", level:"Junior", targetBulan:8500000, targetTahunan:102000000, status:"Aktif" },
+  { id:"SAL008", nama:"Nita Anggraeni", wilayah:"Yogyakarta", level:"Junior", targetBulan:9000000, targetTahunan:108000000, status:"Aktif" },
+  { id:"SAL009", nama:"Farhan Maulana", wilayah:"Bali", level:"Senior", targetBulan:12000000, targetTahunan:144000000, status:"Aktif" },
+  { id:"SAL010", nama:"Dewi Rahmawati", wilayah:"Palembang", level:"Junior", targetBulan:8000000, targetTahunan:96000000, status:"Aktif" },
+];
+
+const INIT_TRANSAKSI = [
+  { id:"TRX0001", tanggal:"2024-01-04", kuartal:"Q1", produkId:"P001", produk:"Laptop ProMax 15", kategori:"Elektronik", pelangganId:"CUS012", pelanggan:"CV Mitra Usaha", tipePel:"UMKM", salesmanId:"SAL010", salesman:"Dewi Rahmawati", kota:"Palembang", qty:8, harga:12500000, hpp:8500000, diskon:0.05, total:95000000, laba:27000000, margin:0.284, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0002", tanggal:"2024-01-04", kuartal:"Q1", produkId:"P011", produk:"Tablet Android 10", kategori:"Elektronik", pelangganId:"CUS012", pelanggan:"CV Mitra Usaha", tipePel:"UMKM", salesmanId:"SAL010", salesman:"Dewi Rahmawati", kota:"Palembang", qty:19, harga:6500000, hpp:4200000, diskon:0.07, total:114855000, laba:35055000, margin:0.305, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0003", tanggal:"2024-01-03", kuartal:"Q1", produkId:"P004", produk:"Keyboard Mekanikal RGB", kategori:"Aksesori", pelangganId:"CUS004", pelanggan:"PT Digital Solusi", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:18, harga:850000, hpp:450000, diskon:0.10, total:13770000, laba:5670000, margin:0.412, bulan:1, status:"Selesai", metodeBayar:"Kartu Kredit" },
+  { id:"TRX0004", tanggal:"2024-01-15", kuartal:"Q1", produkId:"P010", produk:"Router WiFi 6 AX3000", kategori:"Jaringan", pelangganId:"CUS005", pelanggan:"UD Karya Mandiri", tipePel:"UMKM", salesmanId:"SAL005", salesman:"Bambang Haryono", kota:"Medan", qty:6, harga:1100000, hpp:650000, diskon:0.07, total:6138000, laba:2238000, margin:0.365, bulan:1, status:"Batal", metodeBayar:"Cash" },
+  { id:"TRX0005", tanggal:"2024-01-05", kuartal:"Q1", produkId:"P004", produk:"Keyboard Mekanikal RGB", kategori:"Aksesori", pelangganId:"CUS013", pelanggan:"Warnet GameZone", tipePel:"Retail", salesmanId:"SAL006", salesman:"Laila Fitriani", kota:"Jakarta", qty:4, harga:850000, hpp:450000, diskon:0, total:3400000, laba:1600000, margin:0.471, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0006", tanggal:"2024-01-12", kuartal:"Q1", produkId:"P014", produk:"Hub USB-C 7in1", kategori:"Aksesori", pelangganId:"CUS006", pelanggan:"PT Teknindo Jaya", tipePel:"Korporat", salesmanId:"SAL004", salesman:"Sari Indrawati", kota:"Semarang", qty:2, harga:380000, hpp:200000, diskon:0.12, total:668800, laba:268800, margin:0.402, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0007", tanggal:"2024-01-03", kuartal:"Q1", produkId:"P009", produk:"Webcam Full HD 1080", kategori:"Periferal", pelangganId:"CUS005", pelanggan:"UD Karya Mandiri", tipePel:"UMKM", salesmanId:"SAL005", salesman:"Bambang Haryono", kota:"Medan", qty:19, harga:750000, hpp:420000, diskon:0.05, total:13537500, laba:5557500, margin:0.411, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0008", tanggal:"2024-01-22", kuartal:"Q1", produkId:"P004", produk:"Keyboard Mekanikal RGB", kategori:"Aksesori", pelangganId:"CUS013", pelanggan:"Warnet GameZone", tipePel:"Retail", salesmanId:"SAL006", salesman:"Laila Fitriani", kota:"Jakarta", qty:3, harga:850000, hpp:450000, diskon:0, total:2550000, laba:1200000, margin:0.471, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0009", tanggal:"2024-01-09", kuartal:"Q1", produkId:"P008", produk:"SSD External 1TB", kategori:"Storage", pelangganId:"CUS011", pelanggan:"PT Garuda Niaga", tipePel:"Korporat", salesmanId:"SAL002", salesman:"Rina Kusumawati", kota:"Surabaya", qty:6, harga:950000, hpp:580000, diskon:0.10, total:5130000, laba:1650000, margin:0.322, bulan:1, status:"Batal", metodeBayar:"Kartu Kredit" },
+  { id:"TRX0010", tanggal:"2024-01-22", kuartal:"Q1", produkId:"P005", produk:"Monitor 27inch 4K", kategori:"Elektronik", pelangganId:"CUS012", pelanggan:"CV Mitra Usaha", tipePel:"UMKM", salesmanId:"SAL010", salesman:"Dewi Rahmawati", kota:"Palembang", qty:20, harga:4200000, hpp:2900000, diskon:0.05, total:79800000, laba:21800000, margin:0.273, bulan:1, status:"Selesai", metodeBayar:"Kartu Kredit" },
+  { id:"TRX0011", tanggal:"2024-02-05", kuartal:"Q1", produkId:"P002", produk:"Laptop SlimBook 13", kategori:"Elektronik", pelangganId:"CUS001", pelanggan:"PT Maju Bersama", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:5, harga:9800000, hpp:6800000, diskon:0.05, total:46550000, laba:13550000, margin:0.291, bulan:2, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0012", tanggal:"2024-02-10", kuartal:"Q1", produkId:"P015", produk:"NAS Server 4Bay", kategori:"Storage", pelangganId:"CUS009", pelanggan:"PT Infranet Global", tipePel:"Korporat", salesmanId:"SAL006", salesman:"Laila Fitriani", kota:"Jakarta", qty:10, harga:8900000, hpp:6100000, diskon:0.05, total:84550000, laba:26550000, margin:0.314, bulan:2, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0013", tanggal:"2024-02-14", kuartal:"Q1", produkId:"P003", produk:"Mouse Wireless Ergo", kategori:"Aksesori", pelangganId:"CUS003", pelanggan:"Toko ElektroNusa", tipePel:"Retail", salesmanId:"SAL003", salesman:"Dimas Pratama", kota:"Bandung", qty:15, harga:350000, hpp:180000, diskon:0, total:5250000, laba:2550000, margin:0.486, bulan:2, status:"Selesai", metodeBayar:"Cash" },
+  { id:"TRX0014", tanggal:"2024-03-03", kuartal:"Q1", produkId:"P007", produk:"Printer Laser A4", kategori:"Periferal", pelangganId:"CUS004", pelanggan:"PT Digital Solusi", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:8, harga:3500000, hpp:2200000, diskon:0.05, total:26600000, laba:8400000, margin:0.316, bulan:3, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0015", tanggal:"2024-03-15", kuartal:"Q1", produkId:"P006", produk:"Headset Gaming Pro", kategori:"Aksesori", pelangganId:"CUS007", pelanggan:"Toko Komputer Prima", tipePel:"Retail", salesmanId:"SAL008", salesman:"Nita Anggraeni", kota:"Yogyakarta", qty:12, harga:1200000, hpp:700000, diskon:0, total:14400000, laba:6000000, margin:0.417, bulan:3, status:"Selesai", metodeBayar:"Cash" },
+  { id:"TRX0016", tanggal:"2024-04-02", kuartal:"Q2", produkId:"P002", produk:"Laptop SlimBook 13", kategori:"Elektronik", pelangganId:"CUS004", pelanggan:"PT Digital Solusi", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:10, harga:9800000, hpp:6800000, diskon:0.05, total:93100000, laba:27100000, margin:0.291, bulan:4, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0017", tanggal:"2024-04-10", kuartal:"Q2", produkId:"P005", produk:"Monitor 27inch 4K", kategori:"Elektronik", pelangganId:"CUS009", pelanggan:"PT Infranet Global", tipePel:"Korporat", salesmanId:"SAL006", salesman:"Laila Fitriani", kota:"Jakarta", qty:15, harga:4200000, hpp:2900000, diskon:0.07, total:58590000, laba:16590000, margin:0.283, bulan:4, status:"Selesai", metodeBayar:"Kartu Kredit" },
+  { id:"TRX0018", tanggal:"2024-04-22", kuartal:"Q2", produkId:"P012", produk:"Powerbank 20000mAh", kategori:"Aksesori", pelangganId:"CUS003", pelanggan:"Toko ElektroNusa", tipePel:"Retail", salesmanId:"SAL003", salesman:"Dimas Pratama", kota:"Bandung", qty:20, harga:450000, hpp:240000, diskon:0, total:9000000, laba:4200000, margin:0.467, bulan:4, status:"Selesai", metodeBayar:"QRIS" },
+  { id:"TRX0019", tanggal:"2024-05-05", kuartal:"Q2", produkId:"P011", produk:"Tablet Android 10", kategori:"Elektronik", pelangganId:"CUS002", pelanggan:"CV Sumber Makmur", tipePel:"UMKM", salesmanId:"SAL002", salesman:"Rina Kusumawati", kota:"Surabaya", qty:8, harga:6500000, hpp:4200000, diskon:0.05, total:49400000, laba:14600000, margin:0.296, bulan:5, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0020", tanggal:"2024-05-18", kuartal:"Q2", produkId:"P013", produk:"Speaker Bluetooth JBL", kategori:"Aksesori", pelangganId:"CUS007", pelanggan:"Toko Komputer Prima", tipePel:"Retail", salesmanId:"SAL008", salesman:"Nita Anggraeni", kota:"Yogyakarta", qty:10, harga:800000, hpp:480000, diskon:0.05, total:7600000, laba:2800000, margin:0.368, bulan:5, status:"Selesai", metodeBayar:"Cash" },
+  { id:"TRX0021", tanggal:"2024-06-03", kuartal:"Q2", produkId:"P001", produk:"Laptop ProMax 15", kategori:"Elektronik", pelangganId:"CUS001", pelanggan:"PT Maju Bersama", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:12, harga:12500000, hpp:8500000, diskon:0.05, total:142500000, laba:40500000, margin:0.284, bulan:6, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0022", tanggal:"2024-06-15", kuartal:"Q2", produkId:"P015", produk:"NAS Server 4Bay", kategori:"Storage", pelangganId:"CUS004", pelanggan:"PT Digital Solusi", tipePel:"Korporat", salesmanId:"SAL003", salesman:"Dimas Pratama", kota:"Bandung", qty:8, harga:8900000, hpp:6100000, diskon:0, total:71200000, laba:22400000, margin:0.315, bulan:6, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0023", tanggal:"2024-07-08", kuartal:"Q3", produkId:"P002", produk:"Laptop SlimBook 13", kategori:"Elektronik", pelangganId:"CUS009", pelanggan:"PT Infranet Global", tipePel:"Korporat", salesmanId:"SAL006", salesman:"Laila Fitriani", kota:"Jakarta", qty:7, harga:9800000, hpp:6800000, diskon:0.05, total:65170000, laba:19950000, margin:0.306, bulan:7, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0024", tanggal:"2024-07-20", kuartal:"Q3", produkId:"P008", produk:"SSD External 1TB", kategori:"Storage", pelangganId:"CUS011", pelanggan:"PT Garuda Niaga", tipePel:"Korporat", salesmanId:"SAL002", salesman:"Rina Kusumawati", kota:"Surabaya", qty:20, harga:950000, hpp:580000, diskon:0.05, total:18050000, laba:5750000, margin:0.319, bulan:7, status:"Selesai", metodeBayar:"Kartu Kredit" },
+  { id:"TRX0025", tanggal:"2024-08-05", kuartal:"Q3", produkId:"P005", produk:"Monitor 27inch 4K", kategori:"Elektronik", pelangganId:"CUS006", pelanggan:"PT Teknindo Jaya", tipePel:"Korporat", salesmanId:"SAL004", salesman:"Sari Indrawati", kota:"Semarang", qty:10, harga:4200000, hpp:2900000, diskon:0.07, total:39060000, laba:11060000, margin:0.283, bulan:8, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0026", tanggal:"2024-09-10", kuartal:"Q3", produkId:"P010", produk:"Router WiFi 6 AX3000", kategori:"Jaringan", pelangganId:"CUS005", pelanggan:"UD Karya Mandiri", tipePel:"UMKM", salesmanId:"SAL005", salesman:"Bambang Haryono", kota:"Medan", qty:15, harga:1100000, hpp:650000, diskon:0, total:16500000, laba:6750000, margin:0.409, bulan:9, status:"Selesai", metodeBayar:"Cash" },
+  { id:"TRX0027", tanggal:"2024-10-07", kuartal:"Q4", produkId:"P001", produk:"Laptop ProMax 15", kategori:"Elektronik", pelangganId:"CUS014", pelanggan:"PT Solusi Cerdas", tipePel:"Korporat", salesmanId:"SAL009", salesman:"Farhan Maulana", kota:"Bali", qty:6, harga:12500000, hpp:8500000, diskon:0.05, total:71250000, laba:20250000, margin:0.284, bulan:10, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0028", tanggal:"2024-10-18", kuartal:"Q4", produkId:"P004", produk:"Keyboard Mekanikal RGB", kategori:"Aksesori", pelangganId:"CUS013", pelanggan:"Warnet GameZone", tipePel:"Retail", salesmanId:"SAL006", salesman:"Laila Fitriani", kota:"Jakarta", qty:25, harga:850000, hpp:450000, diskon:0, total:21250000, laba:10000000, margin:0.471, bulan:10, status:"Selesai", metodeBayar:"QRIS" },
+  { id:"TRX0029", tanggal:"2024-11-12", kuartal:"Q4", produkId:"P002", produk:"Laptop SlimBook 13", kategori:"Elektronik", pelangganId:"CUS001", pelanggan:"PT Maju Bersama", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:15, harga:9800000, hpp:6800000, diskon:0.08, total:135240000, laba:39240000, margin:0.290, bulan:11, status:"Selesai", metodeBayar:"Transfer Bank" },
+  { id:"TRX0030", tanggal:"2024-12-05", kuartal:"Q4", produkId:"P015", produk:"NAS Server 4Bay", kategori:"Storage", pelangganId:"CUS009", pelanggan:"PT Infranet Global", tipePel:"Korporat", salesmanId:"SAL003", salesman:"Dimas Pratama", kota:"Bandung", qty:12, harga:8900000, hpp:6100000, diskon:0, total:106800000, laba:33600000, margin:0.315, bulan:12, status:"Selesai", metodeBayar:"Transfer Bank" },
+];
+
+const REKAP_BULANAN = [
+  { bulan:"Jan", penjualan:866088800, laba:246738800, margin:28.49, trx:22, target:320000000, selesai:22, batal:5 },
+  { bulan:"Feb", penjualan:549143600, laba:152083600, margin:27.69, trx:20, target:290000000, selesai:18, batal:2 },
+  { bulan:"Mar", penjualan:497177500, laba:140697500, margin:28.30, trx:17, target:350000000, selesai:12, batal:5 },
+  { bulan:"Apr", penjualan:723136700, laba:201516700, margin:27.87, trx:22, target:380000000, selesai:18, batal:5 },
+  { bulan:"Mei", penjualan:487636000, laba:139696000, margin:28.65, trx:23, target:410000000, selesai:16, batal:3 },
+  { bulan:"Jun", penjualan:971658000, laba:279568000, margin:28.77, trx:21, target:360000000, selesai:19, batal:4 },
+  { bulan:"Jul", penjualan:754990500, laba:221110500, margin:29.29, trx:16, target:340000000, selesai:10, batal:7 },
+  { bulan:"Agu", penjualan:532272000, laba:170472000, margin:32.03, trx:19, target:370000000, selesai:18, batal:4 },
+  { bulan:"Sep", penjualan:552675000, laba:160095000, margin:28.97, trx:20, target:400000000, selesai:18, batal:5 },
+  { bulan:"Okt", penjualan:848258500, laba:235908500, margin:27.81, trx:23, target:420000000, selesai:22, batal:4 },
+  { bulan:"Nov", penjualan:815084000, laba:240704000, margin:29.53, trx:22, target:450000000, selesai:17, batal:2 },
+  { bulan:"Des", penjualan:733325000, laba:209485000, margin:28.57, trx:17, target:500000000, selesai:13, batal:5 },
+];
+
+const ANALISIS_PRODUK = [
+  { rank:1, kode:"P002", nama:"Laptop SlimBook 13", kategori:"Elektronik", qty:202, penjualan:1823192000, laba:449592000, margin:24.66 },
+  { rank:2, kode:"P001", nama:"Laptop ProMax 15", kategori:"Elektronik", qty:137, penjualan:1601875000, laba:437375000, margin:27.30 },
+  { rank:3, kode:"P015", nama:"NAS Server 4Bay", kategori:"Storage", qty:143, penjualan:1275370000, laba:342070000, margin:26.82 },
+  { rank:4, kode:"P011", nama:"Tablet Android 10", kategori:"Elektronik", qty:170, penjualan:1038470000, laba:338570000, margin:32.60 },
+  { rank:5, kode:"P005", nama:"Monitor 27inch 4K", kategori:"Elektronik", qty:224, penjualan:867258000, laba:217658000, margin:25.10 },
+  { rank:6, kode:"P007", nama:"Printer Laser A4", kategori:"Periferal", qty:156, penjualan:504175000, laba:160975000, margin:31.93 },
+  { rank:7, kode:"P009", nama:"Webcam Full HD 1080", kategori:"Periferal", qty:287, penjualan:199425000, laba:78885000, margin:39.56 },
+  { rank:8, kode:"P004", nama:"Keyboard Mekanikal RGB", kategori:"Aksesori", qty:243, penjualan:190187500, laba:80837500, margin:42.50 },
+  { rank:9, kode:"P008", nama:"SSD External 1TB", kategori:"Storage", qty:175, penjualan:153244500, laba:51744500, margin:33.77 },
+  { rank:10, kode:"P006", nama:"Headset Gaming Pro", kategori:"Aksesori", qty:129, penjualan:146916000, laba:56616000, margin:38.54 },
+  { rank:11, kode:"P010", nama:"Router WiFi 6 AX3000", kategori:"Jaringan", qty:134, penjualan:136026000, laba:55686000, margin:40.94 },
+  { rank:12, kode:"P013", nama:"Speaker Bluetooth JBL", kategori:"Aksesori", qty:156, penjualan:115380000, laba:46380000, margin:40.20 },
+  { rank:13, kode:"P012", nama:"Powerbank 20000mAh", kategori:"Aksesori", qty:165, penjualan:68842500, laba:32242500, margin:46.83 },
+  { rank:14, kode:"P003", nama:"Mouse Wireless Ergo", kategori:"Aksesori", qty:172, penjualan:56626500, laba:25666500, margin:45.33 },
+  { rank:15, kode:"P014", nama:"Hub USB-C 7in1", kategori:"Aksesori", qty:183, penjualan:54456100, laba:25756100, margin:47.30 },
+];
+
+const ANALISIS_SALESMAN = [
+  { rank:1, kode:"SAL006", nama:"Laila Fitriani", wilayah:"Jakarta", level:"Senior", target:192000000, penjualan:1338940000, trx:35, laba:362690000, margin:27.09, capaian:697.36, bonus:66947000 },
+  { rank:2, kode:"SAL001", nama:"Arif Budiman", wilayah:"Jakarta", level:"Senior", target:180000000, penjualan:1281601100, trx:38, laba:359071100, margin:28.02, capaian:712.00, bonus:64080055 },
+  { rank:3, kode:"SAL003", nama:"Dimas Pratama", wilayah:"Bandung", level:"Junior", target:120000000, penjualan:976107500, trx:24, laba:309597500, margin:31.72, capaian:813.42, bonus:48805375 },
+  { rank:4, kode:"SAL002", nama:"Rina Kusumawati", wilayah:"Surabaya", level:"Senior", target:174000000, penjualan:842079000, trx:34, laba:253069000, margin:30.05, capaian:483.95, bonus:42103950 },
+  { rank:5, kode:"SAL005", nama:"Bambang Haryono", wilayah:"Medan", level:"Senior", target:156000000, penjualan:624505000, trx:20, laba:185935000, margin:29.77, capaian:400.32, bonus:31225250 },
+  { rank:6, kode:"SAL010", nama:"Dewi Rahmawati", wilayah:"Palembang", level:"Junior", target:96000000, penjualan:584479200, trx:16, laba:167829200, margin:28.72, capaian:608.83, bonus:29223960 },
+  { rank:7, kode:"SAL007", nama:"Wahyu Setiawan", wilayah:"Makassar", level:"Junior", target:102000000, penjualan:546983000, trx:18, laba:164323000, margin:30.04, capaian:536.26, bonus:27349150 },
+  { rank:8, kode:"SAL009", nama:"Farhan Maulana", wilayah:"Bali", level:"Senior", target:144000000, penjualan:521772000, trx:15, laba:125192000, margin:23.99, capaian:362.34, bonus:26088600 },
+  { rank:9, kode:"SAL004", nama:"Sari Indrawati", wilayah:"Semarang", level:"Junior", target:114000000, penjualan:692837800, trx:19, laba:173427800, margin:25.03, capaian:607.75, bonus:34641890 },
+  { rank:10, kode:"SAL008", nama:"Nita Anggraeni", wilayah:"Yogyakarta", level:"Junior", target:108000000, penjualan:394141000, trx:18, laba:140741000, margin:35.71, capaian:364.95, bonus:19707050 },
+];
+
+const ANALISIS_WILAYAH = [
+  { rank:1, kota:"Jakarta", provinsi:"DKI Jakarta", pulau:"Jawa", penjualan:2620541100, trx:73, laba:721761100, margin:27.54, kontribusi:31.45 },
+  { rank:2, kota:"Palembang", provinsi:"Sumatera Selatan", pulau:"Sumatera", penjualan:1112479200, trx:21, laba:324029200, margin:29.13, kontribusi:13.35 },
+  { rank:3, kota:"Bandung", provinsi:"Jawa Barat", pulau:"Jawa", penjualan:976107500, trx:24, laba:309597500, margin:31.72, kontribusi:11.72 },
+  { rank:4, kota:"Surabaya", provinsi:"Jawa Timur", pulau:"Jawa", penjualan:842079000, trx:34, laba:253069000, margin:30.05, kontribusi:10.11 },
+  { rank:5, kota:"Semarang", provinsi:"Jawa Tengah", pulau:"Jawa", penjualan:692837800, trx:19, laba:173427800, margin:25.03, kontribusi:8.32 },
+  { rank:6, kota:"Medan", provinsi:"Sumatera Utara", pulau:"Sumatera", penjualan:624505000, trx:20, laba:185935000, margin:29.77, kontribusi:7.50 },
+  { rank:7, kota:"Makassar", provinsi:"Sulawesi Selatan", pulau:"Sulawesi", penjualan:546983000, trx:18, laba:164323000, margin:30.04, kontribusi:6.57 },
+  { rank:8, kota:"Bali", provinsi:"Bali", pulau:"Bali-NTT", penjualan:521772000, trx:15, laba:125192000, margin:23.99, kontribusi:6.26 },
+  { rank:9, kota:"Yogyakarta", provinsi:"DI Yogyakarta", pulau:"Jawa", penjualan:394141000, trx:18, laba:140741000, margin:35.71, kontribusi:4.73 },
+  { rank:10, kota:"Balikpapan", provinsi:"Kalimantan Timur", pulau:"Kalimantan", penjualan:0, trx:0, laba:0, margin:0, kontribusi:0 },
+];
+
+const TARGET_REALISASI = [
+  { nama:"Arif Budiman", q1t:39600000, q1r:268151600, q2t:43200000, q2r:353690000, q3t:46800000, q3r:236009500, q4t:50400000, q4r:423750000 },
+  { nama:"Rina Kusumawati", q1t:38280000, q1r:223703000, q2t:41760000, q2r:122398000, q3t:45240000, q3r:139091500, q4t:48720000, q4r:356886500 },
+  { nama:"Dimas Pratama", q1t:26400000, q1r:136848000, q2t:28800000, q2r:140027500, q3t:31200000, q3r:248044000, q4t:33600000, q4r:451188000 },
+  { nama:"Sari Indrawati", q1t:25080000, q1r:159602800, q2t:27360000, q2r:33355000, q3t:29640000, q3r:124960000, q4t:31920000, q4r:374920000 },
+  { nama:"Bambang Haryono", q1t:34320000, q1r:64387500, q2t:37440000, q2r:207387500, q3t:40560000, q3r:268987500, q4t:43680000, q4r:83742500 },
+  { nama:"Laila Fitriani", q1t:42240000, q1r:325500000, q2t:46080000, q2r:566879000, q3t:49920000, q3r:89730000, q4t:53760000, q4r:356831000 },
+  { nama:"Wahyu Setiawan", q1t:22440000, q1r:96407500, q2t:24480000, q2r:92147500, q3t:26520000, q3r:73203000, q4t:28560000, q4r:285225000 },
+  { nama:"Nita Anggraeni", q1t:23760000, q1r:77319500, q2t:25920000, q2r:30534500, q3t:28080000, q3r:284787000, q4t:30240000, q4r:1500000 },
+  { nama:"Farhan Maulana", q1t:31680000, q1r:54612000, q2t:34560000, q2r:117852000, q3t:37440000, q3r:128028000, q4t:40320000, q4r:221280000 },
+  { nama:"Dewi Rahmawati", q1t:21120000, q1r:176120000, q2t:23040000, q2r:181440000, q3t:24960000, q3r:75799200, q4t:26880000, q4r:151120000 },
+];
+
+// ─────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────
+const fmtRp = (n) => `Rp ${Number(n).toLocaleString("id-ID")}`;
+const fmtPct = (n) => `${Number(n).toFixed(1)}%`;
+const fmtNum = (n) => Number(n).toLocaleString("id-ID");
+const fmtRpShort = (n) => {
+  if (n >= 1e9) return `Rp ${(n / 1e9).toFixed(2)}M`;
+  if (n >= 1e6) return `Rp ${(n / 1e6).toFixed(1)}Jt`;
+  return `Rp ${Number(n).toLocaleString("id-ID")}`;
+};
+
+const BULAN_NAME = ["","Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const KATEGORI_LIST = ["Elektronik","Aksesori","Periferal","Storage","Jaringan"];
+const STATUS_LIST = ["Selesai","Batal","Proses"];
+const METODE_LIST = ["Transfer Bank","Kartu Kredit","Cash","QRIS"];
+
+const getTheme = (dark) => dark ? {
+  bg:"#0f172a", surface:"#1e293b", surface2:"#1e293b", surface3:"#334155",
+  border:"#334155", borderLight:"#475569",
+  text:"#f1f5f9", muted:"#94a3b8", subtle:"#64748b",
+  accent:"#10b981", accentBg:"#052e16", accentText:"#34d399",
+  danger:"#ef4444", dangerBg:"#450a0a", warning:"#f59e0b", info:"#3b82f6",
+  sidebar:"#020617", topbar:"#0f172a",
+  chartColors:["#10b981","#3b82f6","#f59e0b","#ef4444","#8b5cf6","#ec4899","#06b6d4"],
+} : {
+  bg:"#f8fafc", surface:"#ffffff", surface2:"#f1f5f9", surface3:"#e2e8f0",
+  border:"#e2e8f0", borderLight:"#cbd5e1",
+  text:"#0f172a", muted:"#64748b", subtle:"#94a3b8",
+  accent:"#059669", accentBg:"#dcfce7", accentText:"#065f46",
+  danger:"#dc2626", dangerBg:"#fef2f2", warning:"#d97706", info:"#2563eb",
+  sidebar:"#1e293b", topbar:"#ffffff",
+  chartColors:["#059669","#2563eb","#d97706","#dc2626","#7c3aed","#db2777","#0891b2"],
+};
+
+// ─────────────────────────────────────────
+// BADGE COMPONENT
+// ─────────────────────────────────────────
+function Badge({ label, color, t }) {
+  const colorMap = {
+    green: { bg: t.dark ? "#052e16" : "#dcfce7", text: t.dark ? "#4ade80" : "#14532d" },
+    red: { bg: t.dark ? "#450a0a" : "#fef2f2", text: t.dark ? "#f87171" : "#7f1d1d" },
+    blue: { bg: t.dark ? "#0f172a" : "#eff6ff", text: t.dark ? "#60a5fa" : "#1e3a8a" },
+    amber: { bg: t.dark ? "#1c1400" : "#fffbeb", text: t.dark ? "#fbbf24" : "#78350f" },
+    gray: { bg: t.dark ? "#1e293b" : "#f1f5f9", text: t.dark ? "#94a3b8" : "#475569" },
+  };
+  const c = colorMap[color] || colorMap.gray;
+  return (
+    <span style={{ background: c.bg, color: c.text, padding: "2px 8px", borderRadius: 12, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>
+      {label}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────
+// MODAL COMPONENT
+// ─────────────────────────────────────────
+function Modal({ open, title, onClose, onSave, children, t }) {
+  if (!open) return null;
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+      <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, width:"100%", maxWidth:560, maxHeight:"90vh", overflow:"auto" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 20px", borderBottom:`1px solid ${t.border}` }}>
+          <h3 style={{ margin:0, color:t.text, fontSize:16, fontWeight:600 }}>{title}</h3>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", color:t.muted, padding:4 }}>
+            <X size={18} />
+          </button>
+        </div>
+        <div style={{ padding:"20px" }}>{children}</div>
+        <div style={{ padding:"12px 20px", borderTop:`1px solid ${t.border}`, display:"flex", gap:8, justifyContent:"flex-end" }}>
+          <button onClick={onClose} style={{ padding:"8px 16px", border:`1px solid ${t.border}`, borderRadius:8, background:"transparent", color:t.muted, cursor:"pointer", fontSize:13 }}>Batal</button>
+          <button onClick={onSave} style={{ padding:"8px 20px", background:t.accent, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontSize:13, fontWeight:600 }}>Simpan</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// FORM FIELD COMPONENT
+// ─────────────────────────────────────────
+function Field({ label, children, t }) {
+  return (
+    <div style={{ marginBottom:14 }}>
+      <label style={{ display:"block", fontSize:12, color:t.muted, marginBottom:4, fontWeight:500 }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Input({ value, onChange, type="text", t, ...props }) {
+  return (
+    <input type={type} value={value} onChange={e => onChange(e.target.value)} {...props}
+      style={{ width:"100%", padding:"8px 10px", background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13, outline:"none", boxSizing:"border-box" }}
+    />
+  );
+}
+
+function Select({ value, onChange, options, t }) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)}
+      style={{ width:"100%", padding:"8px 10px", background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13, outline:"none" }}>
+      {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
+    </select>
+  );
+}
+
+// ─────────────────────────────────────────
+// KPI CARD
+// ─────────────────────────────────────────
+function KPICard({ label, value, sub, icon: Icon, color, t }) {
+  return (
+    <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:"18px 20px", display:"flex", gap:14, alignItems:"center" }}>
+      <div style={{ background:color + "20", borderRadius:10, padding:10, flexShrink:0 }}>
+        <Icon size={22} color={color} />
+      </div>
+      <div style={{ minWidth:0 }}>
+        <p style={{ margin:"0 0 2px", fontSize:11, color:t.muted, fontWeight:500, textTransform:"uppercase", letterSpacing:"0.04em" }}>{label}</p>
+        <p style={{ margin:0, fontSize:20, fontWeight:700, color:t.text, lineHeight:1 }}>{value}</p>
+        {sub && <p style={{ margin:"4px 0 0", fontSize:11, color:t.muted }}>{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// TABLE WRAPPER
+// ─────────────────────────────────────────
+function TableWrap({ children, t }) {
+  return (
+    <div style={{ overflowX:"auto", borderRadius:12, border:`1px solid ${t.border}` }}>
+      <table style={{ width:"100%", borderCollapse:"collapse", minWidth:640 }}>
+        {children}
+      </table>
+    </div>
+  );
+}
+
+function TH({ children, t }) {
+  return <th style={{ padding:"10px 14px", textAlign:"left", fontSize:11, color:t.muted, fontWeight:600, background:t.surface2, whiteSpace:"nowrap", borderBottom:`1px solid ${t.border}` }}>{children}</th>;
+}
+
+function TD({ children, t }) {
+  return <td style={{ padding:"12px 14px", fontSize:13, color:t.text, borderBottom:`1px solid ${t.border}` }}>{children}</td>;
+}
+
+// ─────────────────────────────────────────
+// DASHBOARD PAGE
+// ─────────────────────────────────────────
+function DashboardPage({ t, transaksi }) {
+  const totalPenjualan = REKAP_BULANAN.reduce((s,r) => s + r.penjualan, 0);
+  const totalLaba = REKAP_BULANAN.reduce((s,r) => s + r.laba, 0);
+  const totalTrx = REKAP_BULANAN.reduce((s,r) => s + r.trx, 0);
+  const avgMargin = totalLaba / totalPenjualan * 100;
+
+  const top5Produk = ANALISIS_PRODUK.slice(0, 5).map(p => ({ name: p.nama.split(" ").slice(0,3).join(" "), penjualan: Math.round(p.penjualan / 1e6) }));
+
+  const categoryData = useMemo(() => {
+    const map = {};
+    ANALISIS_PRODUK.forEach(p => { map[p.kategori] = (map[p.kategori] || 0) + p.penjualan; });
+    return Object.entries(map).map(([name, value]) => ({ name, value: Math.round(value / 1e6) }));
+  }, []);
+
+  const salesmanData = ANALISIS_SALESMAN.slice(0,6).map(s => ({
+    name: s.nama.split(" ")[0],
+    penjualan: Math.round(s.penjualan / 1e6),
+    target: Math.round(s.target / 1e6),
+  }));
+
+  const totalTarget = REKAP_BULANAN.reduce((s,r) => s + r.target, 0);
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+      {/* KPI */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:14 }}>
+        <KPICard label="Total Penjualan" value={fmtRpShort(totalPenjualan)} sub="Jan – Des 2024" icon={DollarSign} color={t.accent} t={t} />
+        <KPICard label="Total Transaksi" value={fmtNum(totalTrx)} sub="242 transaksi aktif" icon={ShoppingCart} color={t.info} t={t} />
+        <KPICard label="Total Laba Kotor" value={fmtRpShort(totalLaba)} sub={`Margin ${fmtPct(avgMargin)}`} icon={TrendingUp} color="#8b5cf6" t={t} />
+        <KPICard label="Pencapaian Target" value={fmtPct(totalPenjualan/totalTarget*100)} sub={`Target: ${fmtRpShort(totalTarget)}`} icon={Target} color={t.warning} t={t} />
+      </div>
+
+      {/* Charts row 1 */}
+      <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr", gap:14 }}>
+        <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+          <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Tren Penjualan Bulanan 2024</p>
+          <div style={{ height:220 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={REKAP_BULANAN}>
+                <defs>
+                  <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={t.accent} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={t.accent} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+                <XAxis dataKey="bulan" tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={v => `${(v/1e6).toFixed(0)}Jt`} tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+                <Tooltip formatter={(v) => [fmtRp(v), "Penjualan"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} labelStyle={{ color:t.text }} />
+                <Area type="monotone" dataKey="penjualan" stroke={t.accent} fill="url(#grad1)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="target" stroke={t.info} fill="none" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display:"flex", gap:16, marginTop:8 }}>
+            {[{c:t.accent,l:"Realisasi"},{c:t.info,l:"Target (est.)"}].map(i => (
+              <span key={i.l} style={{ display:"flex", alignItems:"center", gap:5, fontSize:11, color:t.muted }}>
+                <span style={{ width:10, height:3, background:i.c, borderRadius:2, display:"inline-block" }} />{i.l}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+          <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Penjualan per Kategori</p>
+          <div style={{ height:180 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={categoryData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3}>
+                  {categoryData.map((_, i) => <Cell key={i} fill={t.chartColors[i % t.chartColors.length]} />)}
+                </Pie>
+                <Tooltip formatter={(v) => [`Rp ${v}Jt`, ""]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:"4px 12px", marginTop:8 }}>
+            {categoryData.map((d,i) => (
+              <span key={d.name} style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:t.muted }}>
+                <span style={{ width:8, height:8, borderRadius:2, background:t.chartColors[i], display:"inline-block" }} />{d.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Charts row 2 */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+        <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+          <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Top 5 Produk (Penjualan)</p>
+          <div style={{ height:200 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={top5Produk} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke={t.border} horizontal={false} />
+                <XAxis type="number" tickFormatter={v => `${v}Jt`} tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill:t.text, fontSize:10 }} axisLine={false} tickLine={false} width={90} />
+                <Tooltip formatter={(v) => [`Rp ${v}Jt`, "Penjualan"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+                <Bar dataKey="penjualan" fill={t.accent} radius={[0,4,4,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+          <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Kinerja Salesman Top 6</p>
+          <div style={{ height:200 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={salesmanData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+                <XAxis dataKey="name" tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={v => `${v}Jt`} tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} />
+                <Tooltip formatter={(v,n) => [`Rp ${v}Jt`, n === "penjualan" ? "Penjualan" : "Target"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+                <Bar dataKey="penjualan" fill={t.accent} radius={[4,4,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+        <p style={{ margin:"0 0 14px", fontSize:13, fontWeight:600, color:t.text }}>Transaksi Terbaru</p>
+        <TableWrap t={t}>
+          <thead>
+            <tr>{["No","Tanggal","Produk","Pelanggan","Salesman","Total","Status"].map(h => <TH key={h} t={t}>{h}</TH>)}</tr>
+          </thead>
+          <tbody>
+            {transaksi.slice(-5).reverse().map(tr => (
+              <tr key={tr.id}>
+                <TD t={t}>{tr.id}</TD>
+                <TD t={t}>{tr.tanggal}</TD>
+                <TD t={t}>{tr.produk}</TD>
+                <TD t={t}>{tr.pelanggan}</TD>
+                <TD t={t}>{tr.salesman}</TD>
+                <TD t={t}>{fmtRpShort(tr.total)}</TD>
+                <TD t={t}><Badge label={tr.status} color={tr.status==="Selesai"?"green":tr.status==="Batal"?"red":"amber"} t={{dark:t===getTheme(true)}} /></TD>
+              </tr>
+            ))}
+          </tbody>
+        </TableWrap>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// TRANSAKSI PAGE
+// ─────────────────────────────────────────
+function TransaksiPage({ transaksi, setTransaksi, produk, pelanggan, salesman, t }) {
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterBulan, setFilterBulan] = useState("");
+  const [modal, setModal] = useState({ open:false, mode:"add", data:null });
+  const [form, setForm] = useState({});
+  const [deleteId, setDeleteId] = useState(null);
+
+  const filtered = useMemo(() => transaksi.filter(tr => {
+    const q = search.toLowerCase();
+    const matchSearch = !q || tr.id.toLowerCase().includes(q) || tr.produk.toLowerCase().includes(q) || tr.pelanggan.toLowerCase().includes(q) || tr.salesman.toLowerCase().includes(q);
+    const matchStatus = !filterStatus || tr.status === filterStatus;
+    const matchBulan = !filterBulan || String(tr.bulan) === filterBulan;
+    return matchSearch && matchStatus && matchBulan;
+  }), [transaksi, search, filterStatus, filterBulan]);
+
+  const openAdd = () => {
+    const newId = `TRX${String(transaksi.length + 1).padStart(4,"0")}`;
+    setForm({ id:newId, tanggal:new Date().toISOString().split("T")[0], kuartal:"Q1", produkId:"P001", produk:"Laptop ProMax 15", kategori:"Elektronik", pelangganId:"CUS001", pelanggan:"PT Maju Bersama", tipePel:"Korporat", salesmanId:"SAL001", salesman:"Arif Budiman", kota:"Jakarta", qty:1, harga:12500000, hpp:8500000, diskon:0, total:12500000, laba:4000000, margin:0.32, bulan:1, status:"Selesai", metodeBayar:"Transfer Bank" });
+    setModal({ open:true, mode:"add", data:null });
+  };
+
+  const openEdit = (tr) => { setForm({...tr}); setModal({ open:true, mode:"edit", data:tr }); };
+
+  const handleSave = () => {
+    const f = { ...form, qty: Number(form.qty), harga: Number(form.harga), hpp: Number(form.hpp), diskon: Number(form.diskon) };
+    f.total = f.qty * f.harga * (1 - f.diskon);
+    f.laba = f.qty * (f.harga - f.hpp) * (1 - f.diskon);
+    f.margin = f.harga > 0 ? (f.harga - f.hpp) * (1 - f.diskon) / (f.harga * (1 - f.diskon)) : 0;
+    if (modal.mode === "add") setTransaksi(p => [...p, f]);
+    else setTransaksi(p => p.map(tr => tr.id === f.id ? f : tr));
+    setModal({ open:false });
+  };
+
+  const handleDelete = () => {
+    setTransaksi(p => p.filter(tr => tr.id !== deleteId));
+    setDeleteId(null);
+  };
+
+  const produkSelected = produk.find(p => p.id === form.produkId);
+  const pelangganSelected = pelanggan.find(p => p.id === form.pelangganId);
+  const salesmanSelected = salesman.find(s => s.id === form.salesmanId);
+
+  return (
+    <div>
+      {/* Filters */}
+      <div style={{ display:"flex", gap:10, marginBottom:16, flexWrap:"wrap" }}>
+        <div style={{ flex:1, minWidth:200, position:"relative" }}>
+          <Search size={14} style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:t.muted }} />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari transaksi, produk, pelanggan..."
+            style={{ width:"100%", padding:"8px 10px 8px 32px", background:t.surface, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13, outline:"none", boxSizing:"border-box" }} />
+        </div>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+          style={{ padding:"8px 12px", background:t.surface, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13 }}>
+          <option value="">Semua Status</option>
+          {STATUS_LIST.map(s => <option key={s}>{s}</option>)}
+        </select>
+        <select value={filterBulan} onChange={e => setFilterBulan(e.target.value)}
+          style={{ padding:"8px 12px", background:t.surface, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13 }}>
+          <option value="">Semua Bulan</option>
+          {BULAN_NAME.slice(1).map((b,i) => <option key={i} value={i+1}>{b}</option>)}
+        </select>
+        <button onClick={openAdd} style={{ padding:"8px 16px", background:t.accent, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:6 }}>
+          <Plus size={14} /> Tambah
+        </button>
+      </div>
+
+      <div style={{ marginBottom:8, fontSize:12, color:t.muted }}>{filtered.length} transaksi ditemukan</div>
+
+      <TableWrap t={t}>
+        <thead>
+          <tr>{["No Trx","Tanggal","Produk","Pelanggan","Salesman","Qty","Total","Laba","Margin","Metode","Status","Aksi"].map(h => <TH key={h} t={t}>{h}</TH>)}</tr>
+        </thead>
+        <tbody>
+          {filtered.map(tr => (
+            <tr key={tr.id} style={{ transition:"background 0.15s" }}>
+              <TD t={t}><span style={{ fontFamily:"monospace", fontSize:12, color:t.muted }}>{tr.id}</span></TD>
+              <TD t={t}>{tr.tanggal}</TD>
+              <TD t={t}><div style={{ fontWeight:500 }}>{tr.produk}</div><div style={{ fontSize:11, color:t.muted }}>{tr.kategori}</div></TD>
+              <TD t={t}><div>{tr.pelanggan}</div><div style={{ fontSize:11, color:t.muted }}>{tr.tipePel}</div></TD>
+              <TD t={t}>{tr.salesman}</TD>
+              <TD t={t}>{tr.qty}</TD>
+              <TD t={t}><span style={{ fontWeight:600 }}>{fmtRpShort(tr.total)}</span></TD>
+              <TD t={t}>{fmtRpShort(tr.laba)}</TD>
+              <TD t={t}>{fmtPct(tr.margin * 100)}</TD>
+              <TD t={t}><span style={{ fontSize:11 }}>{tr.metodeBayar}</span></TD>
+              <TD t={t}><Badge label={tr.status} color={tr.status==="Selesai"?"green":tr.status==="Batal"?"red":"amber"} t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>
+                <div style={{ display:"flex", gap:6 }}>
+                  <button onClick={() => openEdit(tr)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.muted, cursor:"pointer" }}><Pencil size={12} /></button>
+                  <button onClick={() => setDeleteId(tr.id)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.danger, cursor:"pointer" }}><Trash2 size={12} /></button>
+                </div>
+              </TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+
+      {/* Add/Edit Modal */}
+      <Modal open={modal.open} title={modal.mode==="add" ? "Tambah Transaksi" : "Edit Transaksi"} onClose={() => setModal({open:false})} onSave={handleSave} t={t}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <Field label="No Transaksi" t={t}><Input value={form.id||""} onChange={v => setForm(f=>({...f,id:v}))} t={t} disabled /></Field>
+          <Field label="Tanggal" t={t}><Input type="date" value={form.tanggal||""} onChange={v => setForm(f=>({...f,tanggal:v}))} t={t} /></Field>
+          <Field label="Produk" t={t}>
+            <Select value={form.produkId||""} onChange={v => {
+              const p = produk.find(x=>x.id===v);
+              if(p) setForm(f=>({...f, produkId:p.id, produk:p.nama, kategori:p.kategori, harga:p.harga, hpp:p.hpp}));
+            }} options={produk.map(p=>({value:p.id,label:`${p.id} - ${p.nama}`}))} t={t} />
+          </Field>
+          <Field label="Pelanggan" t={t}>
+            <Select value={form.pelangganId||""} onChange={v => {
+              const p = pelanggan.find(x=>x.id===v);
+              if(p) setForm(f=>({...f, pelangganId:p.id, pelanggan:p.nama, tipePel:p.tipe, kota:p.kota}));
+            }} options={pelanggan.map(p=>({value:p.id,label:`${p.id} - ${p.nama}`}))} t={t} />
+          </Field>
+          <Field label="Salesman" t={t}>
+            <Select value={form.salesmanId||""} onChange={v => {
+              const s = salesman.find(x=>x.id===v);
+              if(s) setForm(f=>({...f, salesmanId:s.id, salesman:s.nama, kota:s.wilayah}));
+            }} options={salesman.map(s=>({value:s.id,label:`${s.id} - ${s.nama}`}))} t={t} />
+          </Field>
+          <Field label="Status" t={t}><Select value={form.status||"Selesai"} onChange={v=>setForm(f=>({...f,status:v}))} options={STATUS_LIST} t={t} /></Field>
+          <Field label="Qty" t={t}><Input type="number" value={form.qty||0} onChange={v=>setForm(f=>({...f,qty:Number(v)}))} t={t} /></Field>
+          <Field label="Diskon (%)" t={t}><Input type="number" value={((form.diskon||0)*100).toFixed(0)} onChange={v=>setForm(f=>({...f,diskon:Number(v)/100}))} t={t} /></Field>
+          <Field label="Metode Bayar" t={t}><Select value={form.metodeBayar||"Cash"} onChange={v=>setForm(f=>({...f,metodeBayar:v}))} options={METODE_LIST} t={t} /></Field>
+          <Field label="Bulan" t={t}><Select value={form.bulan||1} onChange={v=>setForm(f=>({...f,bulan:Number(v)}))} options={BULAN_NAME.slice(1).map((b,i)=>({value:i+1,label:b}))} t={t} /></Field>
+        </div>
+        <div style={{ marginTop:12, padding:12, background:t.surface2, borderRadius:8, fontSize:12, color:t.muted }}>
+          <div>Harga Satuan: <strong style={{color:t.text}}>{fmtRp(form.harga||0)}</strong></div>
+          <div>Estimasi Total: <strong style={{color:t.accent}}>{fmtRp((form.qty||0)*(form.harga||0)*(1-(form.diskon||0)))}</strong></div>
+        </div>
+      </Modal>
+
+      {/* Delete Confirm */}
+      {deleteId && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:24, maxWidth:360, textAlign:"center" }}>
+            <Trash2 size={28} color={t.danger} style={{ marginBottom:12 }} />
+            <p style={{ color:t.text, marginBottom:6, fontWeight:600 }}>Hapus Transaksi?</p>
+            <p style={{ color:t.muted, fontSize:13, marginBottom:20 }}>Transaksi <strong>{deleteId}</strong> akan dihapus permanen.</p>
+            <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+              <button onClick={() => setDeleteId(null)} style={{ padding:"8px 20px", border:`1px solid ${t.border}`, borderRadius:8, background:"transparent", color:t.muted, cursor:"pointer" }}>Batal</button>
+              <button onClick={handleDelete} style={{ padding:"8px 20px", background:t.danger, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontWeight:600 }}>Hapus</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// MASTER PRODUK PAGE
+// ─────────────────────────────────────────
+function ProdukPage({ produk, setProduk, t }) {
+  const [search, setSearch] = useState("");
+  const [modal, setModal] = useState({ open:false, mode:"add" });
+  const [form, setForm] = useState({});
+  const [deleteId, setDeleteId] = useState(null);
+
+  const filtered = produk.filter(p => !search || p.nama.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
+
+  const openAdd = () => { setForm({ id:`P${String(produk.length+1).padStart(3,"0")}`, nama:"", kategori:"Elektronik", merek:"", harga:0, hpp:0, margin:0 }); setModal({open:true,mode:"add"}); };
+  const openEdit = (p) => { setForm({...p}); setModal({open:true,mode:"edit"}); };
+  const handleSave = () => {
+    const f = {...form, harga:Number(form.harga), hpp:Number(form.hpp)};
+    f.margin = f.harga > 0 ? (f.harga - f.hpp) / f.harga : 0;
+    if(modal.mode==="add") setProduk(p=>[...p,f]);
+    else setProduk(p=>p.map(x=>x.id===f.id?f:x));
+    setModal({open:false});
+  };
+
+  return (
+    <div>
+      <div style={{ display:"flex", gap:10, marginBottom:16 }}>
+        <div style={{ flex:1, position:"relative" }}>
+          <Search size={14} style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:t.muted }} />
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Cari produk..."
+            style={{ width:"100%", padding:"8px 10px 8px 32px", background:t.surface, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13, outline:"none", boxSizing:"border-box" }} />
+        </div>
+        <button onClick={openAdd} style={{ padding:"8px 16px", background:t.accent, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:6 }}>
+          <Plus size={14} /> Tambah Produk
+        </button>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Kode","Nama Produk","Kategori","Merek","Harga Jual","HPP","Margin","Aksi"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {filtered.map(p => (
+            <tr key={p.id}>
+              <TD t={t}><span style={{ fontFamily:"monospace", fontSize:12, color:t.muted }}>{p.id}</span></TD>
+              <TD t={t}><span style={{ fontWeight:500 }}>{p.nama}</span></TD>
+              <TD t={t}><Badge label={p.kategori} color="blue" t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>{p.merek}</TD>
+              <TD t={t}><span style={{ fontWeight:600, color:t.text }}>{fmtRp(p.harga)}</span></TD>
+              <TD t={t}>{fmtRp(p.hpp)}</TD>
+              <TD t={t}><span style={{ color: p.margin > 0.4 ? t.accent : p.margin > 0.3 ? t.warning : t.danger, fontWeight:600 }}>{fmtPct(p.margin * 100)}</span></TD>
+              <TD t={t}>
+                <div style={{ display:"flex", gap:6 }}>
+                  <button onClick={()=>openEdit(p)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.muted, cursor:"pointer" }}><Pencil size={12} /></button>
+                  <button onClick={()=>setDeleteId(p.id)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.danger, cursor:"pointer" }}><Trash2 size={12} /></button>
+                </div>
+              </TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+
+      <Modal open={modal.open} title={modal.mode==="add"?"Tambah Produk":"Edit Produk"} onClose={()=>setModal({open:false})} onSave={handleSave} t={t}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <Field label="Kode Produk" t={t}><Input value={form.id||""} onChange={v=>setForm(f=>({...f,id:v}))} t={t} /></Field>
+          <Field label="Nama Produk" t={t}><Input value={form.nama||""} onChange={v=>setForm(f=>({...f,nama:v}))} t={t} /></Field>
+          <Field label="Kategori" t={t}><Select value={form.kategori||"Elektronik"} onChange={v=>setForm(f=>({...f,kategori:v}))} options={KATEGORI_LIST} t={t} /></Field>
+          <Field label="Merek" t={t}><Input value={form.merek||""} onChange={v=>setForm(f=>({...f,merek:v}))} t={t} /></Field>
+          <Field label="Harga Jual (Rp)" t={t}><Input type="number" value={form.harga||0} onChange={v=>setForm(f=>({...f,harga:Number(v)}))} t={t} /></Field>
+          <Field label="HPP (Rp)" t={t}><Input type="number" value={form.hpp||0} onChange={v=>setForm(f=>({...f,hpp:Number(v)}))} t={t} /></Field>
+        </div>
+        <div style={{ marginTop:12, padding:12, background:t.surface2, borderRadius:8, fontSize:12, color:t.muted }}>
+          Margin: <strong style={{color:t.accent}}>{form.harga > 0 ? fmtPct((form.harga-form.hpp)/form.harga*100) : "0%"}</strong>
+        </div>
+      </Modal>
+
+      {deleteId && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:24, maxWidth:340, textAlign:"center" }}>
+            <p style={{ color:t.text, fontWeight:600, marginBottom:8 }}>Hapus produk ini?</p>
+            <p style={{ color:t.muted, fontSize:13, marginBottom:20 }}>Produk <strong>{deleteId}</strong> akan dihapus.</p>
+            <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+              <button onClick={()=>setDeleteId(null)} style={{ padding:"8px 20px", border:`1px solid ${t.border}`, borderRadius:8, background:"transparent", color:t.muted, cursor:"pointer" }}>Batal</button>
+              <button onClick={()=>{setProduk(p=>p.filter(x=>x.id!==deleteId));setDeleteId(null);}} style={{ padding:"8px 20px", background:t.danger, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontWeight:600 }}>Hapus</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// MASTER PELANGGAN PAGE
+// ─────────────────────────────────────────
+function PelangganPage({ pelanggan, setPelanggan, t }) {
+  const [search, setSearch] = useState("");
+  const [modal, setModal] = useState({ open:false, mode:"add" });
+  const [form, setForm] = useState({});
+  const [deleteId, setDeleteId] = useState(null);
+
+  const filtered = pelanggan.filter(p => !search || p.nama.toLowerCase().includes(search.toLowerCase()) || p.id.includes(search));
+  const openAdd = () => { setForm({ id:`CUS${String(pelanggan.length+1).padStart(3,"0")}`, nama:"", tipe:"Retail", kota:"", pic:"", telp:"" }); setModal({open:true,mode:"add"}); };
+  const openEdit = (p) => { setForm({...p}); setModal({open:true,mode:"edit"}); };
+  const handleSave = () => {
+    if(modal.mode==="add") setPelanggan(p=>[...p,form]);
+    else setPelanggan(p=>p.map(x=>x.id===form.id?form:x));
+    setModal({open:false});
+  };
+  const TIPE_LIST = ["Korporat","UMKM","Retail"];
+  const tipeColor = { Korporat:"blue", UMKM:"amber", Retail:"green" };
+
+  return (
+    <div>
+      <div style={{ display:"flex", gap:10, marginBottom:16 }}>
+        <div style={{ flex:1, position:"relative" }}>
+          <Search size={14} style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:t.muted }} />
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Cari pelanggan..."
+            style={{ width:"100%", padding:"8px 10px 8px 32px", background:t.surface, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13, outline:"none", boxSizing:"border-box" }} />
+        </div>
+        <button onClick={openAdd} style={{ padding:"8px 16px", background:t.accent, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:6 }}>
+          <Plus size={14} /> Tambah
+        </button>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Kode","Nama Pelanggan","Tipe","Kota","PIC","Telepon","Aksi"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {filtered.map(p => (
+            <tr key={p.id}>
+              <TD t={t}><span style={{ fontFamily:"monospace", fontSize:12, color:t.muted }}>{p.id}</span></TD>
+              <TD t={t}><span style={{ fontWeight:500 }}>{p.nama}</span></TD>
+              <TD t={t}><Badge label={p.tipe} color={tipeColor[p.tipe]||"gray"} t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>{p.kota}</TD>
+              <TD t={t}>{p.pic}</TD>
+              <TD t={t}><span style={{ fontFamily:"monospace", fontSize:12 }}>{p.telp}</span></TD>
+              <TD t={t}>
+                <div style={{ display:"flex", gap:6 }}>
+                  <button onClick={()=>openEdit(p)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.muted, cursor:"pointer" }}><Pencil size={12} /></button>
+                  <button onClick={()=>setDeleteId(p.id)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.danger, cursor:"pointer" }}><Trash2 size={12} /></button>
+                </div>
+              </TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+      <Modal open={modal.open} title={modal.mode==="add"?"Tambah Pelanggan":"Edit Pelanggan"} onClose={()=>setModal({open:false})} onSave={handleSave} t={t}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <Field label="Kode" t={t}><Input value={form.id||""} onChange={v=>setForm(f=>({...f,id:v}))} t={t} /></Field>
+          <Field label="Nama Pelanggan" t={t}><Input value={form.nama||""} onChange={v=>setForm(f=>({...f,nama:v}))} t={t} /></Field>
+          <Field label="Tipe" t={t}><Select value={form.tipe||"Retail"} onChange={v=>setForm(f=>({...f,tipe:v}))} options={TIPE_LIST} t={t} /></Field>
+          <Field label="Kota" t={t}><Input value={form.kota||""} onChange={v=>setForm(f=>({...f,kota:v}))} t={t} /></Field>
+          <Field label="PIC" t={t}><Input value={form.pic||""} onChange={v=>setForm(f=>({...f,pic:v}))} t={t} /></Field>
+          <Field label="Telepon" t={t}><Input value={form.telp||""} onChange={v=>setForm(f=>({...f,telp:v}))} t={t} /></Field>
+        </div>
+      </Modal>
+      {deleteId && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:24, maxWidth:340, textAlign:"center" }}>
+            <p style={{ color:t.text, fontWeight:600, marginBottom:8 }}>Hapus pelanggan ini?</p>
+            <p style={{ color:t.muted, fontSize:13, marginBottom:20 }}>{deleteId}</p>
+            <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+              <button onClick={()=>setDeleteId(null)} style={{ padding:"8px 20px", border:`1px solid ${t.border}`, borderRadius:8, background:"transparent", color:t.muted, cursor:"pointer" }}>Batal</button>
+              <button onClick={()=>{setPelanggan(p=>p.filter(x=>x.id!==deleteId));setDeleteId(null);}} style={{ padding:"8px 20px", background:t.danger, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontWeight:600 }}>Hapus</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// MASTER SALESMAN PAGE
+// ─────────────────────────────────────────
+function SalesmanPage({ salesman, setSalesman, t }) {
+  const [search, setSearch] = useState("");
+  const [modal, setModal] = useState({ open:false, mode:"add" });
+  const [form, setForm] = useState({});
+  const [deleteId, setDeleteId] = useState(null);
+
+  const filtered = salesman.filter(s => !search || s.nama.toLowerCase().includes(search.toLowerCase()) || s.id.includes(search));
+  const openAdd = () => { setForm({ id:`SAL${String(salesman.length+1).padStart(3,"0")}`, nama:"", wilayah:"", level:"Junior", targetBulan:0, targetTahunan:0, status:"Aktif" }); setModal({open:true,mode:"add"}); };
+  const openEdit = (s) => { setForm({...s}); setModal({open:true,mode:"edit"}); };
+  const handleSave = () => {
+    const f = {...form, targetBulan:Number(form.targetBulan), targetTahunan:Number(form.targetBulan)*12};
+    if(modal.mode==="add") setSalesman(p=>[...p,f]);
+    else setSalesman(p=>p.map(x=>x.id===f.id?f:x));
+    setModal({open:false});
+  };
+
+  return (
+    <div>
+      <div style={{ display:"flex", gap:10, marginBottom:16 }}>
+        <div style={{ flex:1, position:"relative" }}>
+          <Search size={14} style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:t.muted }} />
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Cari salesman..."
+            style={{ width:"100%", padding:"8px 10px 8px 32px", background:t.surface, border:`1px solid ${t.border}`, borderRadius:8, color:t.text, fontSize:13, outline:"none", boxSizing:"border-box" }} />
+        </div>
+        <button onClick={openAdd} style={{ padding:"8px 16px", background:t.accent, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:6 }}>
+          <Plus size={14} /> Tambah
+        </button>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Kode","Nama","Wilayah","Level","Target Bulanan","Target Tahunan","Status","Aksi"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {filtered.map(s => (
+            <tr key={s.id}>
+              <TD t={t}><span style={{ fontFamily:"monospace", fontSize:12, color:t.muted }}>{s.id}</span></TD>
+              <TD t={t}><span style={{ fontWeight:500 }}>{s.nama}</span></TD>
+              <TD t={t}>{s.wilayah}</TD>
+              <TD t={t}><Badge label={s.level} color={s.level==="Senior"?"amber":"blue"} t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>{fmtRp(s.targetBulan)}</TD>
+              <TD t={t}>{fmtRp(s.targetTahunan)}</TD>
+              <TD t={t}><Badge label="Aktif" color="green" t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>
+                <div style={{ display:"flex", gap:6 }}>
+                  <button onClick={()=>openEdit(s)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.muted, cursor:"pointer" }}><Pencil size={12} /></button>
+                  <button onClick={()=>setDeleteId(s.id)} style={{ padding:"4px 8px", background:"transparent", border:`1px solid ${t.border}`, borderRadius:6, color:t.danger, cursor:"pointer" }}><Trash2 size={12} /></button>
+                </div>
+              </TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+      <Modal open={modal.open} title={modal.mode==="add"?"Tambah Salesman":"Edit Salesman"} onClose={()=>setModal({open:false})} onSave={handleSave} t={t}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+          <Field label="Kode" t={t}><Input value={form.id||""} onChange={v=>setForm(f=>({...f,id:v}))} t={t} /></Field>
+          <Field label="Nama" t={t}><Input value={form.nama||""} onChange={v=>setForm(f=>({...f,nama:v}))} t={t} /></Field>
+          <Field label="Wilayah" t={t}><Input value={form.wilayah||""} onChange={v=>setForm(f=>({...f,wilayah:v}))} t={t} /></Field>
+          <Field label="Level" t={t}><Select value={form.level||"Junior"} onChange={v=>setForm(f=>({...f,level:v}))} options={["Senior","Junior"]} t={t} /></Field>
+          <Field label="Target Bulanan (Rp)" t={t}><Input type="number" value={form.targetBulan||0} onChange={v=>setForm(f=>({...f,targetBulan:Number(v)}))} t={t} /></Field>
+          <Field label="Status" t={t}><Select value={form.status||"Aktif"} onChange={v=>setForm(f=>({...f,status:v}))} options={["Aktif","Non-Aktif"]} t={t} /></Field>
+        </div>
+      </Modal>
+      {deleteId && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:24, maxWidth:340, textAlign:"center" }}>
+            <p style={{ color:t.text, fontWeight:600, marginBottom:8 }}>Hapus salesman ini?</p>
+            <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+              <button onClick={()=>setDeleteId(null)} style={{ padding:"8px 20px", border:`1px solid ${t.border}`, borderRadius:8, background:"transparent", color:t.muted, cursor:"pointer" }}>Batal</button>
+              <button onClick={()=>{setSalesman(p=>p.filter(x=>x.id!==deleteId));setDeleteId(null);}} style={{ padding:"8px 20px", background:t.danger, border:"none", borderRadius:8, color:"#fff", cursor:"pointer", fontWeight:600 }}>Hapus</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// REKAP BULANAN PAGE
+// ─────────────────────────────────────────
+function RekapPage({ t }) {
+  const total = {
+    penjualan: REKAP_BULANAN.reduce((s,r)=>s+r.penjualan,0),
+    laba: REKAP_BULANAN.reduce((s,r)=>s+r.laba,0),
+    trx: REKAP_BULANAN.reduce((s,r)=>s+r.trx,0),
+    selesai: REKAP_BULANAN.reduce((s,r)=>s+r.selesai,0),
+    batal: REKAP_BULANAN.reduce((s,r)=>s+r.batal,0),
+    target: REKAP_BULANAN.reduce((s,r)=>s+r.target,0),
+  };
+  return (
+    <div>
+      <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20, marginBottom:16 }}>
+        <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Tren Penjualan vs Laba 2024</p>
+        <div style={{ height:240 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={REKAP_BULANAN}>
+              <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+              <XAxis dataKey="bulan" tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={v=>`${(v/1e6).toFixed(0)}Jt`} tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+              <Tooltip formatter={(v,n)=>[fmtRp(v), n==="penjualan"?"Penjualan":"Laba"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+              <Bar dataKey="penjualan" fill={t.chartColors[0]} radius={[4,4,0,0]} />
+              <Bar dataKey="laba" fill={t.chartColors[1]} radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Bulan","Penjualan","Laba","Margin%","Transaksi","Selesai","Batal","Target","Capaian%"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {REKAP_BULANAN.map(r => (
+            <tr key={r.bulan}>
+              <TD t={t}><span style={{ fontWeight:600 }}>{r.bulan}</span></TD>
+              <TD t={t}>{fmtRpShort(r.penjualan)}</TD>
+              <TD t={t}>{fmtRpShort(r.laba)}</TD>
+              <TD t={t}><span style={{ color: r.margin > 30 ? t.accent : t.text }}>{fmtPct(r.margin)}</span></TD>
+              <TD t={t}>{r.trx}</TD>
+              <TD t={t}><span style={{ color:t.accent }}>{r.selesai}</span></TD>
+              <TD t={t}><span style={{ color:t.danger }}>{r.batal}</span></TD>
+              <TD t={t}>{fmtRpShort(r.target)}</TD>
+              <TD t={t}><span style={{ color: r.penjualan/r.target>1 ? t.accent : t.warning, fontWeight:600 }}>{fmtPct(r.penjualan/r.target*100)}</span></TD>
+            </tr>
+          ))}
+          <tr style={{ background:t.surface2 }}>
+            <TD t={t}><strong style={{color:t.text}}>TOTAL</strong></TD>
+            <TD t={t}><strong>{fmtRpShort(total.penjualan)}</strong></TD>
+            <TD t={t}><strong>{fmtRpShort(total.laba)}</strong></TD>
+            <TD t={t}><strong>{fmtPct(total.laba/total.penjualan*100)}</strong></TD>
+            <TD t={t}><strong>{total.trx}</strong></TD>
+            <TD t={t}><strong style={{color:t.accent}}>{total.selesai}</strong></TD>
+            <TD t={t}><strong style={{color:t.danger}}>{total.batal}</strong></TD>
+            <TD t={t}><strong>{fmtRpShort(total.target)}</strong></TD>
+            <TD t={t}><strong>{fmtPct(total.penjualan/total.target*100)}</strong></TD>
+          </tr>
+        </tbody>
+      </TableWrap>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// ANALISIS PRODUK PAGE
+// ─────────────────────────────────────────
+function AnalisProdukPage({ t }) {
+  const chartData = ANALISIS_PRODUK.slice(0,8).map(p => ({ name: p.nama.split(" ").slice(0,2).join(" "), penjualan: Math.round(p.penjualan/1e6), laba: Math.round(p.laba/1e6) }));
+  return (
+    <div>
+      <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20, marginBottom:16 }}>
+        <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Top 8 Produk — Penjualan vs Laba (Juta Rp)</p>
+        <div style={{ height:260 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+              <XAxis dataKey="name" tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} angle={-15} textAnchor="end" height={40} />
+              <YAxis tickFormatter={v=>`${v}Jt`} tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+              <Tooltip formatter={(v,n)=>[`Rp ${v}Jt`, n==="penjualan"?"Penjualan":"Laba"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+              <Bar dataKey="penjualan" fill={t.chartColors[0]} radius={[3,3,0,0]} />
+              <Bar dataKey="laba" fill={t.chartColors[1]} radius={[3,3,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Rank","Kode","Nama Produk","Kategori","Total Qty","Penjualan","Laba","Margin","Transaksi"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {ANALISIS_PRODUK.map(p => (
+            <tr key={p.kode}>
+              <TD t={t}><span style={{ fontWeight:700, color: p.rank<=3 ? t.accent : t.muted }}>#{p.rank}</span></TD>
+              <TD t={t}><span style={{ fontFamily:"monospace", fontSize:12, color:t.muted }}>{p.kode}</span></TD>
+              <TD t={t}><span style={{ fontWeight:500 }}>{p.nama}</span></TD>
+              <TD t={t}><Badge label={p.kategori} color="blue" t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>{p.qty}</TD>
+              <TD t={t}><span style={{ fontWeight:600 }}>{fmtRpShort(p.penjualan)}</span></TD>
+              <TD t={t}>{fmtRpShort(p.laba)}</TD>
+              <TD t={t}><span style={{ color: p.margin > 40 ? t.accent : p.margin > 30 ? t.warning : t.danger }}>{fmtPct(p.margin)}</span></TD>
+              <TD t={t}>{p.trx||"-"}</TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// ANALISIS SALESMAN PAGE
+// ─────────────────────────────────────────
+function AnalisSalesmanPage({ t }) {
+  const chartData = ANALISIS_SALESMAN.slice(0,8).map(s => ({ name: s.nama.split(" ")[0], penjualan: Math.round(s.penjualan/1e6), target: Math.round(s.target/1e6) }));
+  return (
+    <div>
+      <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20, marginBottom:16 }}>
+        <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Kinerja Salesman 2024 (Realisasi vs Target)</p>
+        <div style={{ height:240 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+              <XAxis dataKey="name" tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={v=>`${v}Jt`} tick={{ fill:t.muted, fontSize:11 }} axisLine={false} tickLine={false} />
+              <Tooltip formatter={(v,n)=>[`Rp ${v}Jt`, n==="penjualan"?"Realisasi":"Target Tahunan"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+              <Bar dataKey="penjualan" fill={t.chartColors[0]} radius={[3,3,0,0]} />
+              <Bar dataKey="target" fill={t.chartColors[3]} radius={[3,3,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Rank","Nama","Wilayah","Level","Target","Realisasi","Trx","Laba","Margin","Capaian%","Bonus"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {ANALISIS_SALESMAN.map(s => (
+            <tr key={s.kode}>
+              <TD t={t}><span style={{ fontWeight:700, color: s.rank<=3 ? t.accent : t.muted }}>#{s.rank}</span></TD>
+              <TD t={t}><span style={{ fontWeight:500 }}>{s.nama}</span></TD>
+              <TD t={t}>{s.wilayah}</TD>
+              <TD t={t}><Badge label={s.level} color={s.level==="Senior"?"amber":"blue"} t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}>{fmtRpShort(s.target)}</TD>
+              <TD t={t}><span style={{ fontWeight:600, color:t.accent }}>{fmtRpShort(s.penjualan)}</span></TD>
+              <TD t={t}>{s.trx}</TD>
+              <TD t={t}>{fmtRpShort(s.laba)}</TD>
+              <TD t={t}>{fmtPct(s.margin)}</TD>
+              <TD t={t}><span style={{ color: s.capaian > 500 ? t.accent : t.warning, fontWeight:600 }}>{fmtPct(s.capaian)}</span></TD>
+              <TD t={t}>{fmtRpShort(s.bonus)}</TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// ANALISIS WILAYAH PAGE
+// ─────────────────────────────────────────
+function AnalisisWilayahPage({ t }) {
+  const chartData = ANALISIS_WILAYAH.filter(w=>w.penjualan>0).map(w => ({ name: w.kota, penjualan: Math.round(w.penjualan/1e6), kontribusi: w.kontribusi }));
+  return (
+    <div>
+      <div style={{ display:"grid", gridTemplateColumns:"3fr 2fr", gap:14, marginBottom:16 }}>
+        <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+          <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Penjualan per Kota (Juta Rp)</p>
+          <div style={{ height:220 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke={t.border} horizontal={false} />
+                <XAxis type="number" tickFormatter={v=>`${v}Jt`} tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill:t.text, fontSize:11 }} axisLine={false} tickLine={false} width={75} />
+                <Tooltip formatter={(v)=>[`Rp ${v}Jt`, "Penjualan"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+                <Bar dataKey="penjualan" radius={[0,4,4,0]}>
+                  {chartData.map((_,i) => <Cell key={i} fill={t.chartColors[i % t.chartColors.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20 }}>
+          <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Kontribusi Wilayah</p>
+          <div style={{ height:180 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} dataKey="kontribusi" label={({name,kontribusi})=>`${kontribusi.toFixed(1)}%`} labelLine={false}>
+                  {chartData.map((_,i) => <Cell key={i} fill={t.chartColors[i % t.chartColors.length]} />)}
+                </Pie>
+                <Tooltip formatter={(v)=>[`${v.toFixed(1)}%`, "Kontribusi"]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+      <TableWrap t={t}>
+        <thead><tr>{["Rank","Kota","Provinsi","Pulau","Penjualan","Transaksi","Laba","Margin","Kontribusi"].map(h=><TH key={h} t={t}>{h}</TH>)}</tr></thead>
+        <tbody>
+          {ANALISIS_WILAYAH.map(w => (
+            <tr key={w.kota}>
+              <TD t={t}><span style={{ fontWeight:700, color: w.rank<=3 ? t.accent : t.muted }}>#{w.rank}</span></TD>
+              <TD t={t}><span style={{ fontWeight:500 }}>{w.kota}</span></TD>
+              <TD t={t}>{w.provinsi}</TD>
+              <TD t={t}><Badge label={w.pulau} color="gray" t={{dark:t===getTheme(true)}} /></TD>
+              <TD t={t}><span style={{ fontWeight:600 }}>{w.penjualan > 0 ? fmtRpShort(w.penjualan) : "-"}</span></TD>
+              <TD t={t}>{w.trx || "-"}</TD>
+              <TD t={t}>{w.laba > 0 ? fmtRpShort(w.laba) : "-"}</TD>
+              <TD t={t}><span style={{ color: w.margin > 30 ? t.accent : w.margin > 0 ? t.warning : t.muted }}>{w.margin > 0 ? fmtPct(w.margin) : "-"}</span></TD>
+              <TD t={t}><span style={{ fontWeight:600, color:t.accent }}>{w.kontribusi > 0 ? fmtPct(w.kontribusi) : "-"}</span></TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// TARGET VS REALISASI PAGE
+// ─────────────────────────────────────────
+function TargetRealisasiPage({ t }) {
+  const chartData = TARGET_REALISASI.map(s => ({
+    name: s.nama.split(" ")[0],
+    Q1: Math.round(s.q1r/1e6), Q2: Math.round(s.q2r/1e6),
+    Q3: Math.round(s.q3r/1e6), Q4: Math.round(s.q4r/1e6),
+  }));
+
+  const pctColor = (r, target) => {
+    const p = r / target;
+    return p > 5 ? t.accent : p > 2 ? t.warning : t.danger;
+  };
+
+  return (
+    <div>
+      <div style={{ background:t.surface, border:`1px solid ${t.border}`, borderRadius:12, padding:20, marginBottom:16 }}>
+        <p style={{ margin:"0 0 16px", fontSize:13, fontWeight:600, color:t.text }}>Realisasi per Kuartal per Salesman (Juta Rp)</p>
+        <div style={{ height:260 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={t.border} />
+              <XAxis dataKey="name" tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={v=>`${v}Jt`} tick={{ fill:t.muted, fontSize:10 }} axisLine={false} tickLine={false} />
+              <Tooltip formatter={(v,n)=>[`Rp ${v}Jt`, n]} contentStyle={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, fontSize:12 }} />
+              <Legend wrapperStyle={{ fontSize:12, color:t.muted }} />
+              {["Q1","Q2","Q3","Q4"].map((q,i) => <Bar key={q} dataKey={q} fill={t.chartColors[i]} stackId="a" radius={i===3?[3,3,0,0]:[0,0,0,0]} />)}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      <TableWrap t={t}>
+        <thead>
+          <tr>
+            <TH t={t}>Salesman</TH>
+            <TH t={t}>Q1 Target</TH><TH t={t}>Q1 Realisasi</TH><TH t={t}>Q1 %</TH>
+            <TH t={t}>Q2 Target</TH><TH t={t}>Q2 Realisasi</TH><TH t={t}>Q2 %</TH>
+            <TH t={t}>Q3 Target</TH><TH t={t}>Q3 Realisasi</TH><TH t={t}>Q3 %</TH>
+            <TH t={t}>Q4 Target</TH><TH t={t}>Q4 Realisasi</TH><TH t={t}>Q4 %</TH>
+          </tr>
+        </thead>
+        <tbody>
+          {TARGET_REALISASI.map(s => (
+            <tr key={s.nama}>
+              <TD t={t}><span style={{ fontWeight:600 }}>{s.nama}</span></TD>
+              <TD t={t}>{fmtRpShort(s.q1t)}</TD><TD t={t}><strong>{fmtRpShort(s.q1r)}</strong></TD><TD t={t}><span style={{ color:pctColor(s.q1r,s.q1t), fontWeight:600 }}>{fmtPct(s.q1r/s.q1t*100)}</span></TD>
+              <TD t={t}>{fmtRpShort(s.q2t)}</TD><TD t={t}><strong>{fmtRpShort(s.q2r)}</strong></TD><TD t={t}><span style={{ color:pctColor(s.q2r,s.q2t), fontWeight:600 }}>{fmtPct(s.q2r/s.q2t*100)}</span></TD>
+              <TD t={t}>{fmtRpShort(s.q3t)}</TD><TD t={t}><strong>{fmtRpShort(s.q3r)}</strong></TD><TD t={t}><span style={{ color:pctColor(s.q3r,s.q3t), fontWeight:600 }}>{fmtPct(s.q3r/s.q3t*100)}</span></TD>
+              <TD t={t}>{fmtRpShort(s.q4t)}</TD><TD t={t}><strong>{fmtRpShort(s.q4r)}</strong></TD><TD t={t}><span style={{ color:pctColor(s.q4r,s.q4t), fontWeight:600 }}>{fmtPct(s.q4r/s.q4t*100)}</span></TD>
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
+// MAIN APP
+// ─────────────────────────────────────────
+const NAV_ITEMS = [
+  { id:"dashboard", label:"Dashboard", icon:LayoutDashboard, group:"overview" },
+  { id:"transaksi", label:"Transaksi", icon:FileText, group:"operasional" },
+  { id:"produk", label:"Master Produk", icon:Package, group:"operasional" },
+  { id:"pelanggan", label:"Master Pelanggan", icon:Users, group:"operasional" },
+  { id:"salesman", label:"Master Salesman", icon:UserCheck, group:"operasional" },
+  { id:"rekap", label:"Rekap Bulanan", icon:Calendar, group:"analisis" },
+  { id:"analis-produk", label:"Analisis Produk", icon:BarChart2, group:"analisis" },
+  { id:"analis-salesman", label:"Analisis Salesman", icon:TrendingUp, group:"analisis" },
+  { id:"wilayah", label:"Analisis Wilayah", icon:MapPin, group:"analisis" },
+  { id:"target", label:"Target vs Realisasi", icon:Target, group:"analisis" },
+];
+
+const PAGE_TITLES = {
+  dashboard: "Dashboard Eksekutif",
+  transaksi: "Data Transaksi",
+  produk: "Master Produk",
+  pelanggan: "Master Pelanggan",
+  salesman: "Master Salesman",
+  rekap: "Rekap Penjualan Bulanan",
+  "analis-produk": "Analisis Kinerja Produk",
+  "analis-salesman": "Analisis Kinerja Salesman",
+  wilayah: "Analisis Wilayah",
+  target: "Target vs Realisasi",
+};
+
+export default function App() {
+  const [page, setPage] = useState("dashboard");
+  const [dark, setDark] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [produk, setProduk] = useState(INIT_PRODUK);
+  const [pelanggan, setPelanggan] = useState(INIT_PELANGGAN);
+  const [salesman, setSalesman] = useState(INIT_SALESMAN);
+  const [transaksi, setTransaksi] = useState(INIT_TRANSAKSI);
+
+  const t = { ...getTheme(dark), dark };
+
+  const GROUPS = [
+    { id:"overview", label:"OVERVIEW" },
+    { id:"operasional", label:"OPERASIONAL" },
+    { id:"analisis", label:"ANALISIS" },
+  ];
+
+  const renderPage = () => {
+    switch(page) {
+      case "dashboard": return <DashboardPage t={t} transaksi={transaksi} />;
+      case "transaksi": return <TransaksiPage transaksi={transaksi} setTransaksi={setTransaksi} produk={produk} pelanggan={pelanggan} salesman={salesman} t={t} />;
+      case "produk": return <ProdukPage produk={produk} setProduk={setProduk} t={t} />;
+      case "pelanggan": return <PelangganPage pelanggan={pelanggan} setPelanggan={setPelanggan} t={t} />;
+      case "salesman": return <SalesmanPage salesman={salesman} setSalesman={setSalesman} t={t} />;
+      case "rekap": return <RekapPage t={t} />;
+      case "analis-produk": return <AnalisProdukPage t={t} />;
+      case "analis-salesman": return <AnalisSalesmanPage t={t} />;
+      case "wilayah": return <AnalisisWilayahPage t={t} />;
+      case "target": return <TargetRealisasiPage t={t} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={{ display:"flex", height:"100vh", background:t.bg, fontFamily:"'DM Sans',system-ui,sans-serif", overflow:"hidden" }}>
+      {/* Sidebar */}
+      <div style={{ width: sidebarOpen ? 220 : 0, minWidth: sidebarOpen ? 220 : 0, background:t.sidebar, borderRight:`1px solid ${t.border}`, display:"flex", flexDirection:"column", transition:"width 0.2s,min-width 0.2s", overflow:"hidden" }}>
+        {/* Logo */}
+        <div style={{ padding:"18px 16px 14px", borderBottom:`1px solid ${t.border}` }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ width:28, height:28, background:t.accent, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <BarChart2 size={16} color="#fff" />
+            </div>
+            <div>
+              <p style={{ margin:0, fontSize:13, fontWeight:700, color:t.text, lineHeight:1 }}>SalesTrack</p>
+              <p style={{ margin:0, fontSize:10, color:t.muted }}>2024</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav style={{ flex:1, overflowY:"auto", padding:"8px 0" }}>
+          {GROUPS.map(g => (
+            <div key={g.id}>
+              <p style={{ margin:"14px 16px 4px", fontSize:10, color:t.subtle, fontWeight:700, letterSpacing:"0.08em" }}>{g.label}</p>
+              {NAV_ITEMS.filter(n => n.group === g.id).map(n => {
+                const active = page === n.id;
+                return (
+                  <button key={n.id} onClick={() => setPage(n.id)}
+                    style={{ width:"100%", display:"flex", alignItems:"center", gap:8, padding:"8px 16px", border:"none", cursor:"pointer", borderRadius:0, transition:"background 0.1s",
+                      background: active ? t.accent + "20" : "transparent",
+                      color: active ? t.accent : t.muted,
+                      borderLeft: active ? `2px solid ${t.accent}` : "2px solid transparent",
+                    }}>
+                    <n.icon size={15} />
+                    <span style={{ fontSize:13, fontWeight: active ? 600 : 400, whiteSpace:"nowrap" }}>{n.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        {/* Bottom */}
+        <div style={{ padding:"12px 16px", borderTop:`1px solid ${t.border}` }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ width:28, height:28, background:t.accent+"30", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <UserCheck size={14} color={t.accent} />
+            </div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <p style={{ margin:0, fontSize:12, fontWeight:600, color:t.text }}>Admin</p>
+              <p style={{ margin:0, fontSize:10, color:t.muted }}>Super Admin</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main */}
+      <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
+        {/* Topbar */}
+        <div style={{ height:52, background:t.topbar, borderBottom:`1px solid ${t.border}`, display:"flex", alignItems:"center", padding:"0 20px", gap:12, flexShrink:0 }}>
+          <button onClick={()=>setSidebarOpen(o=>!o)} style={{ background:"none", border:"none", cursor:"pointer", color:t.muted, padding:4, display:"flex" }}>
+            <Menu size={18} />
+          </button>
+          <div style={{ flex:1 }}>
+            <h1 style={{ margin:0, fontSize:15, fontWeight:600, color:t.text }}>{PAGE_TITLES[page]}</h1>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:11, color:t.muted }}>
+            <span style={{ background:t.accent+"20", color:t.accent, padding:"3px 8px", borderRadius:12, fontWeight:600 }}>Data 2024</span>
+            <span>{transaksi.length} transaksi</span>
+          </div>
+          <button onClick={()=>setDark(d=>!d)} style={{ background:t.surface2, border:`1px solid ${t.border}`, borderRadius:8, cursor:"pointer", color:t.muted, padding:"6px 10px", display:"flex", alignItems:"center", gap:6, fontSize:12 }}>
+            {dark ? <Sun size={14} /> : <Moon size={14} />}
+            {dark ? "Light" : "Dark"}
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex:1, overflowY:"auto", padding:20 }}>
+          {renderPage()}
+        </div>
+      </div>
+    </div>
+  );
+}
